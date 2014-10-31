@@ -33,6 +33,8 @@ include(GetGitRevisionDescription)
 include(CTest)
 include(CreateDashboardScripts)
 
+globally_enable_extra_compiler_warnings()
+
 include(SetDefaultBuildType)
 set_default_build_type(RelWithDebInfo)
 
