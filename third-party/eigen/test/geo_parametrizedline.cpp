@@ -4,24 +4,9 @@
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
 // Copyright (C) 2008 Benoit Jacob <jacob.benoit.1@gmail.com>
 //
-// Eigen is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either
-// version 3 of the License, or (at your option) any later version.
-//
-// Alternatively, you can redistribute it and/or
-// modify it under the terms of the GNU General Public License as
-// published by the Free Software Foundation; either version 2 of
-// the License, or (at your option) any later version.
-//
-// Eigen is distributed in the hope that it will be useful, but WITHOUT ANY
-// WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-// FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License or the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU Lesser General Public
-// License and a copy of the GNU General Public License along with
-// Eigen. If not, see <http://www.gnu.org/licenses/>.
+// This Source Code Form is subject to the terms of the Mozilla
+// Public License v. 2.0. If a copy of the MPL was not distributed
+// with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "main.h"
 #include <Eigen/Geometry>
@@ -33,13 +18,13 @@ template<typename LineType> void parametrizedline(const LineType& _line)
   /* this test covers the following files:
      ParametrizedLine.h
   */
+  using std::abs;
   typedef typename LineType::Index Index;
   const Index dim = _line.dim();
   typedef typename LineType::Scalar Scalar;
   typedef typename NumTraits<Scalar>::Real RealScalar;
   typedef Matrix<Scalar, LineType::AmbientDimAtCompileTime, 1> VectorType;
-  typedef Matrix<Scalar, LineType::AmbientDimAtCompileTime,
-                         LineType::AmbientDimAtCompileTime> MatrixType;
+  typedef Hyperplane<Scalar,LineType::AmbientDimAtCompileTime> HyperplaneType;
 
   VectorType p0 = VectorType::Random(dim);
   VectorType p1 = VectorType::Random(dim);
@@ -49,7 +34,7 @@ template<typename LineType> void parametrizedline(const LineType& _line)
   LineType l0(p0, d0);
 
   Scalar s0 = internal::random<Scalar>();
-  Scalar s1 = internal::abs(internal::random<Scalar>());
+  Scalar s1 = abs(internal::random<Scalar>());
 
   VERIFY_IS_MUCH_SMALLER_THAN( l0.distance(p0), RealScalar(1) );
   VERIFY_IS_MUCH_SMALLER_THAN( l0.distance(p0+s0*d0), RealScalar(1) );
@@ -64,6 +49,16 @@ template<typename LineType> void parametrizedline(const LineType& _line)
   VERIFY_IS_APPROX(hp1f.template cast<Scalar>(),l0);
   ParametrizedLine<Scalar,Dim> hp1d = l0.template cast<Scalar>();
   VERIFY_IS_APPROX(hp1d.template cast<Scalar>(),l0);
+
+  // intersections
+  VectorType p2 = VectorType::Random(dim);
+  VectorType n2 = VectorType::Random(dim).normalized();
+  HyperplaneType hp(p2,n2);
+  Scalar t = l0.intersectionParameter(hp);
+  VectorType pi = l0.pointAt(t);
+  VERIFY_IS_MUCH_SMALLER_THAN(hp.signedDistance(pi), RealScalar(1));
+  VERIFY_IS_MUCH_SMALLER_THAN(l0.distance(pi), RealScalar(1));
+  VERIFY_IS_APPROX(l0.intersectionPoint(hp), pi);
 }
 
 template<typename Scalar> void parametrizedline_alignment()
@@ -90,8 +85,9 @@ template<typename Scalar> void parametrizedline_alignment()
   VERIFY_IS_APPROX(p1->direction(), p2->direction());
   VERIFY_IS_APPROX(p1->direction(), p3->direction());
   
-  #ifdef EIGEN_VECTORIZE
-  VERIFY_RAISES_ASSERT((::new(reinterpret_cast<void*>(array3u)) Line4a));
+  #if defined(EIGEN_VECTORIZE) && EIGEN_ALIGN_STATICALLY
+  if(internal::packet_traits<Scalar>::Vectorizable)
+    VERIFY_RAISES_ASSERT((::new(reinterpret_cast<void*>(array3u)) Line4a));
   #endif
 }
 
@@ -100,6 +96,7 @@ void test_geo_parametrizedline()
   for(int i = 0; i < g_repeat; i++) {
     CALL_SUBTEST_1( parametrizedline(ParametrizedLine<float,2>()) );
     CALL_SUBTEST_2( parametrizedline(ParametrizedLine<float,3>()) );
+    CALL_SUBTEST_2( parametrizedline_alignment<float>() );
     CALL_SUBTEST_3( parametrizedline(ParametrizedLine<double,4>()) );
     CALL_SUBTEST_3( parametrizedline_alignment<double>() );
     CALL_SUBTEST_4( parametrizedline(ParametrizedLine<std::complex<double>,5>()) );

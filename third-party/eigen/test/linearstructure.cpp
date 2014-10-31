@@ -3,29 +3,15 @@
 //
 // Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
 //
-// Eigen is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either
-// version 3 of the License, or (at your option) any later version.
-//
-// Alternatively, you can redistribute it and/or
-// modify it under the terms of the GNU General Public License as
-// published by the Free Software Foundation; either version 2 of
-// the License, or (at your option) any later version.
-//
-// Eigen is distributed in the hope that it will be useful, but WITHOUT ANY
-// WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-// FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License or the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU Lesser General Public
-// License and a copy of the GNU General Public License along with
-// Eigen. If not, see <http://www.gnu.org/licenses/>.
+// This Source Code Form is subject to the terms of the Mozilla
+// Public License v. 2.0. If a copy of the MPL was not distributed
+// with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "main.h"
 
 template<typename MatrixType> void linearStructure(const MatrixType& m)
 {
+  using std::abs;
   /* this test covers the following files:
      CwiseUnaryOp.h, CwiseBinaryOp.h, SelfCwiseBinaryOp.h 
   */
@@ -39,11 +25,10 @@ template<typename MatrixType> void linearStructure(const MatrixType& m)
   // to test it, hence I consider that we will have tested Random.h
   MatrixType m1 = MatrixType::Random(rows, cols),
              m2 = MatrixType::Random(rows, cols),
-             m3(rows, cols),
-             mzero = MatrixType::Zero(rows, cols);
+             m3(rows, cols);
 
   Scalar s1 = internal::random<Scalar>();
-  while (internal::abs(s1)<1e-3) s1 = internal::random<Scalar>();
+  while (abs(s1)<1e-3) s1 = internal::random<Scalar>();
 
   Index r = internal::random<Index>(0, rows-1),
         c = internal::random<Index>(0, cols-1);
@@ -90,10 +75,10 @@ void test_linearstructure()
     CALL_SUBTEST_2( linearStructure(Matrix2f()) );
     CALL_SUBTEST_3( linearStructure(Vector3d()) );
     CALL_SUBTEST_4( linearStructure(Matrix4d()) );
-    CALL_SUBTEST_5( linearStructure(MatrixXcf(3, 3)) );
-    CALL_SUBTEST_6( linearStructure(MatrixXf(8, 12)) );
-    CALL_SUBTEST_7( linearStructure(MatrixXi(8, 12)) );
-    CALL_SUBTEST_8( linearStructure(MatrixXcd(20, 20)) );
-    CALL_SUBTEST_9( linearStructure(ArrayXXf(12, 8)) );
+    CALL_SUBTEST_5( linearStructure(MatrixXcf(internal::random<int>(1,EIGEN_TEST_MAX_SIZE/2), internal::random<int>(1,EIGEN_TEST_MAX_SIZE/2))) );
+    CALL_SUBTEST_6( linearStructure(MatrixXf (internal::random<int>(1,EIGEN_TEST_MAX_SIZE), internal::random<int>(1,EIGEN_TEST_MAX_SIZE))) );
+    CALL_SUBTEST_7( linearStructure(MatrixXi (internal::random<int>(1,EIGEN_TEST_MAX_SIZE), internal::random<int>(1,EIGEN_TEST_MAX_SIZE))) );
+    CALL_SUBTEST_8( linearStructure(MatrixXcd(internal::random<int>(1,EIGEN_TEST_MAX_SIZE/2), internal::random<int>(1,EIGEN_TEST_MAX_SIZE/2))) );
+    CALL_SUBTEST_9( linearStructure(ArrayXXf (internal::random<int>(1,EIGEN_TEST_MAX_SIZE), internal::random<int>(1,EIGEN_TEST_MAX_SIZE))) );
   }
 }

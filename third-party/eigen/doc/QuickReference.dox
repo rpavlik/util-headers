@@ -1,18 +1,8 @@
 namespace Eigen {
 
-/** \page QuickRefPage Quick reference guide
+/** \eigenManualPage QuickRefPage Quick reference guide
 
-\b Table \b of \b contents
-  - \ref QuickRef_Headers
-  - \ref QuickRef_Types
-  - \ref QuickRef_Map
-  - \ref QuickRef_ArithmeticOperators
-  - \ref QuickRef_Coeffwise
-  - \ref QuickRef_Reductions
-  - \ref QuickRef_Blocks
-  - \ref QuickRef_Misc
-  - \ref QuickRef_DiagTriSymm
-\n
+\eigenAutoToc
 
 <hr>
 
@@ -31,7 +21,7 @@ The Eigen library is divided in a Core module and several additional modules. Ea
 <tr><td>\link SVD_Module SVD \endlink</td><td>\code#include <Eigen/SVD>\endcode</td><td>SVD decomposition with least-squares solver (JacobiSVD)</td></tr>
 <tr class="alt"><td>\link QR_Module QR \endlink</td><td>\code#include <Eigen/QR>\endcode</td><td>QR decomposition with solver (HouseholderQR, ColPivHouseholderQR, FullPivHouseholderQR)</td></tr>
 <tr><td>\link Eigenvalues_Module Eigenvalues \endlink</td><td>\code#include <Eigen/Eigenvalues>\endcode</td><td>Eigenvalue, eigenvector decompositions (EigenSolver, SelfAdjointEigenSolver, ComplexEigenSolver)</td></tr>
-<tr class="alt"><td>\link Sparse_Module Sparse \endlink</td><td>\code#include <Eigen/Sparse>\endcode</td><td>%Sparse matrix storage and related basic linear algebra (SparseMatrix, DynamicSparseMatrix, SparseVector)</td></tr>
+<tr class="alt"><td>\link Sparse_modules Sparse \endlink</td><td>\code#include <Eigen/Sparse>\endcode</td><td>%Sparse matrix storage and related basic linear algebra (SparseMatrix, DynamicSparseMatrix, SparseVector)</td></tr>
 <tr><td></td><td>\code#include <Eigen/Dense>\endcode</td><td>Includes Core, Geometry, LU, Cholesky, SVD, QR, and Eigenvalues header files</td></tr>
 <tr class="alt"><td></td><td>\code#include <Eigen/Eigen>\endcode</td><td>Includes %Dense and %Sparse header files (the whole Eigen library)</td></tr>
 </table>
@@ -55,7 +45,7 @@ All combinations are allowed: you can have a matrix with a fixed number of rows 
 Matrix<double, 6, Dynamic>                  // Dynamic number of columns (heap allocation)
 Matrix<double, Dynamic, 2>                  // Dynamic number of rows (heap allocation)
 Matrix<double, Dynamic, Dynamic, RowMajor>  // Fully dynamic, row major (heap allocation)
-Matrix<double, 13, 3>                       // Fully fixed (static allocation)
+Matrix<double, 13, 3>                       // Fully fixed (usually allocated on stack)
 \endcode
 
 In most cases, you can simply use one of the convenience typedefs for \ref matrixtypedefs "matrices" and \ref arraytypedefs "arrays". Some examples:
@@ -89,8 +79,8 @@ MatrixWrapper<Array44f> a1m(a1);
 \endcode
 
 In the rest of this document we will use the following symbols to emphasize the features which are specifics to a given kind of object:
-\li <a name="matrixonly"><a/>\matrixworld linear algebra matrix and vector only
-\li <a name="arrayonly"><a/>\arrayworld array objects only
+\li <a name="matrixonly"></a>\matrixworld linear algebra matrix and vector only
+\li <a name="arrayonly"></a>\arrayworld array objects only
 
 \subsection QuickRef_Basics Basic matrix manipulation
 
@@ -412,22 +402,22 @@ array1 <= array2    array1 >= array2    array1 <= scalar    array1 >= scalar
 array1 == array2    array1 != array2    array1 == scalar    array1 != scalar
 \endcode</td></tr>
 <tr><td>Trigo, power, and \n misc functions \n and the STL variants</td><td>\code
-array1.min(array2)            std::min(array1,array2)
-array1.max(array2)            std::max(array1,array2)
+array1.min(array2)            
+array1.max(array2)            
 array1.abs2()
-array1.abs()                  std::abs(array1)
-array1.sqrt()                 std::sqrt(array1)
-array1.log()                  std::log(array1)
-array1.exp()                  std::exp(array1)
-array1.pow(exponent)          std::pow(array1,exponent)
+array1.abs()                  abs(array1)
+array1.sqrt()                 sqrt(array1)
+array1.log()                  log(array1)
+array1.exp()                  exp(array1)
+array1.pow(exponent)          pow(array1,exponent)
 array1.square()
 array1.cube()
 array1.inverse()
-array1.sin()                  std::sin(array1)
-array1.cos()                  std::cos(array1)
-array1.tan()                  std::tan(array1)
-array1.asin()                 std::asin(array1)
-array1.acos()                 std::acos(array1)
+array1.sin()                  sin(array1)
+array1.cos()                  cos(array1)
+array1.tan()                  tan(array1)
+array1.asin()                 asin(array1)
+array1.acos()                 acos(array1)
 \endcode
 </td></tr>
 </table>
@@ -440,10 +430,10 @@ Eigen provides several reduction methods such as:
 \link DenseBase::sum() sum() \endlink, \link DenseBase::prod() prod() \endlink,
 \link MatrixBase::trace() trace() \endlink \matrixworld,
 \link MatrixBase::norm() norm() \endlink \matrixworld, \link MatrixBase::squaredNorm() squaredNorm() \endlink \matrixworld,
-\link DenseBase::all() all() \endlink \redstar,and \link DenseBase::any() any() \endlink \redstar.
+\link DenseBase::all() all() \endlink, and \link DenseBase::any() any() \endlink.
 All reduction operations can be done matrix-wise,
-\link DenseBase::colwise() column-wise \endlink \redstar or
-\link DenseBase::rowwise() row-wise \endlink \redstar. Usage example:
+\link DenseBase::colwise() column-wise \endlink or
+\link DenseBase::rowwise() row-wise \endlink. Usage example:
 <table class="manual">
 <tr><td rowspan="3" style="border-right-style:dashed;vertical-align:middle">\code
       5 3 1
@@ -458,7 +448,7 @@ mat = 2 7 8
 \endcode</td></tr>
 </table>
 
-Special versions of \link DenseBase::minCoeff(Index*,Index*) minCoeff \endlink and \link DenseBase::maxCoeff(Index*,Index*) maxCoeff \endlink:
+Special versions of \link DenseBase::minCoeff(IndexType*,IndexType*) const minCoeff \endlink and \link DenseBase::maxCoeff(IndexType*,IndexType*) const maxCoeff \endlink:
 \code
 int i, j;
 s = vector.minCoeff(&i);        // s == vector[i]
@@ -490,7 +480,7 @@ Read-write access to sub-vectors:
 <tr><td>\code vec1.head(n)\endcode</td><td>\code vec1.head<n>()\endcode</td><td>the first \c n coeffs </td></tr>
 <tr><td>\code vec1.tail(n)\endcode</td><td>\code vec1.tail<n>()\endcode</td><td>the last \c n coeffs </td></tr>
 <tr><td>\code vec1.segment(pos,n)\endcode</td><td>\code vec1.segment<n>(pos)\endcode</td>
-    <td>the \c n coeffs in \n the range [\c pos : \c pos + \c n [</td></tr>
+    <td>the \c n coeffs in the \n range [\c pos : \c pos + \c n - 1]</td></tr>
 <tr class="alt"><td colspan="3">
 
 Read-write access to sub-matrices:</td></tr>
@@ -535,7 +525,7 @@ vec.reverse()           mat.colwise().reverse()   mat.rowwise().reverse()
 vec.reverseInPlace()
 \endcode
 
-\subsection QuickRef_Reverse Replicate
+\subsection QuickRef_Replicate Replicate
 Vectors, matrices, rows, and/or columns can be replicated in any direction (see DenseBase::replicate(), VectorwiseOp::replicate())
 \code
 vec.replicate(times)                                          vec.replicate<Times>
@@ -586,6 +576,9 @@ mat3 = mat1 * diag1.inverse()
 
 TriangularView gives a view on a triangular part of a dense matrix and allows to perform optimized operations on it. The opposite triangular part is never referenced and can be used to store other information.
 
+\note The .triangularView() template member function requires the \c template keyword if it is used on an
+object of a type that depends on a template parameter; see \ref TopicTemplateKeyword for details.
+
 <table class="example">
 <tr><th>Operation</th><th>Code</th></tr>
 <tr><td>
@@ -594,7 +587,7 @@ unit or null diagonal (read/write):
 </td><td>\code
 m.triangularView<Xxx>()
 \endcode \n
-\c Xxx = Upper, Lower, StrictlyUpper, StrictlyLower, UnitUpper, UnitLower
+\c Xxx = ::Upper, ::Lower, ::StrictlyUpper, ::StrictlyLower, ::UnitUpper, ::UnitLower
 </td></tr>
 <tr><td>
 Writing to a specific triangular part:\n (only the referenced triangular part is evaluated)
@@ -630,6 +623,9 @@ Just as for triangular matrix, you can reference any triangular part of a square
 matrix and perform special and optimized operations. Again the opposite triangular part is never referenced and can be
 used to store other information.
 
+\note The .selfadjointView() template member function requires the \c template keyword if it is used on an
+object of a type that depends on a template parameter; see \ref TopicTemplateKeyword for details.
+
 <table class="example">
 <tr><th>Operation</th><th>Code</th></tr>
 <tr><td>
@@ -645,14 +641,14 @@ m3 -= s1 * m3.adjoint() * m1.selfadjointView<Eigen::Lower>();\endcode
 </td></tr>
 <tr><td>
 Rank 1 and rank K update: \n
-\f$ upper(M_1) += s1 M_2^* M_2 \f$ \n
-\f$ lower(M_1) -= M_2 M_2^* \f$
+\f$ upper(M_1) \mathrel{{+}{=}} s_1 M_2 M_2^* \f$ \n
+\f$ lower(M_1) \mathbin{{-}{=}} M_2^* M_2 \f$
 </td><td>\n \code
 M1.selfadjointView<Eigen::Upper>().rankUpdate(M2,s1);
-m1.selfadjointView<Eigen::Lower>().rankUpdate(m2.adjoint(),-1); \endcode
+M1.selfadjointView<Eigen::Lower>().rankUpdate(M2.adjoint(),-1); \endcode
 </td></tr>
 <tr><td>
-Rank 2 update: (\f$ M += s u v^* + s v u^* \f$)
+Rank 2 update: (\f$ M \mathrel{{+}{=}} s u v^* + s v u^* \f$)
 </td><td>\code
 M.selfadjointView<Eigen::Upper>().rankUpdate(u,v,s);
 \endcode

@@ -1,3 +1,5 @@
+namespace Eigen { 
+
 namespace internal {
 
 template <typename Scalar>
@@ -10,7 +12,7 @@ void rwupdt(
     typedef DenseIndex Index;
 
     const Index n = r.cols();
-    assert(r.rows()>=n);
+    eigen_assert(r.rows()>=n);
     std::vector<JacobiRotation<Scalar> > givens(n);
 
     /* Local variables */
@@ -44,3 +46,4 @@ void rwupdt(
 
 } // end namespace internal
 
+} // end namespace Eigen

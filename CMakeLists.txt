@@ -43,7 +43,6 @@ find_package(VRJuggler COMPONENTS vpr)
 find_package(GMTL)
 find_package(OpenSceneGraph)
 
-set(BUILD_WITH_EIGEN3 ON)
 ###
 # End build configuration
 ###

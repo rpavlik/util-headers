@@ -1,3 +1,5 @@
+namespace Eigen { 
+
 namespace internal {
 
 template<typename FunctorType, typename Scalar>
@@ -9,6 +11,9 @@ DenseIndex fdjac1(
         DenseIndex ml, DenseIndex mu,
         Scalar epsfcn)
 {
+    using std::sqrt;
+    using std::abs;
+    
     typedef DenseIndex Index;
 
     /* Local variables */
@@ -22,11 +27,11 @@ DenseIndex fdjac1(
     /* Function Body */
     const Scalar epsmch = NumTraits<Scalar>::epsilon();
     const Index n = x.size();
-    assert(fvec.size()==n);
+    eigen_assert(fvec.size()==n);
     Matrix< Scalar, Dynamic, 1 >  wa1(n);
     Matrix< Scalar, Dynamic, 1 >  wa2(n);
 
-    eps = sqrt(std::max(epsfcn,epsmch));
+    eps = sqrt((std::max)(epsfcn,epsmch));
     msum = ml + mu + 1;
     if (msum >= n) {
         /* computation of dense approximate jacobian. */
@@ -61,7 +66,7 @@ DenseIndex fdjac1(
                 if (h == 0.) h = eps;
                 fjac.col(j).setZero();
                 start = std::max<Index>(0,j-mu);
-                length = std::min(n-1, j+ml) - start + 1;
+                length = (std::min)(n-1, j+ml) - start + 1;
                 fjac.col(j).segment(start, length) = ( wa1.segment(start, length)-fvec.segment(start, length))/h;
             }
         }
@@ -70,3 +75,5 @@ DenseIndex fdjac1(
 }
 
 } // end namespace internal
+
+} // end namespace Eigen
