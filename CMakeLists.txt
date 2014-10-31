@@ -23,7 +23,7 @@ set(CPACK_SOURCE_PACKAGE_FILE_NAME "${PROJECT_NAME}-${CPACK_PACKAGE_VERSION}-src
 ###
 
 # Locally-developed modules dist'ed with this app - always have this first.
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(UseBackportedModules)
 include(CppcheckTargets)
 include(DoxygenTargets)
