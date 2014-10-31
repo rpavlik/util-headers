@@ -15,6 +15,7 @@ set(DATASTRUCTURES_HEADERS
 	LockFreeBuffer.h
 	RangedInt.h
 	ReceiveBuffer.h
+	RunLoopManager.h
 	SearchPath.h
 	Set2.h
 	SplitMap.h
@@ -26,17 +27,19 @@ set(DATASTRUCTURES_HEADERS
 
 if(VPR_FOUND)
 	list(APPEND DATASTRUCTURES_HEADERS
-		BlockingInvokeFunctorVPR.h)
+		BlockingInvokeFunctorVPR.h
+		RunLoopManagerVPR.h)
 else()
 	list(APPEND UNTESTED_HEADERS
-		BlockingInvokeFunctorVPR.h)
+		BlockingInvokeFunctorVPR.h
+		RunLoopManagerVPR.h)
 endif()
-if(UTIL_USE_BOOST_THREAD OR VPR_FOUND)
-    list(APPEND DATASTRUCTURES_HEADERS
-		RunLoopManager.h)
+if(Boost_THREAD_LIBRARY)
+	list(APPEND DATASTRUCTURES_HEADERS
+		RunLoopManagerBoost.h)
 else()
 	list(APPEND UNTESTED_HEADERS
-		RunLoopManager.h)
+		RunLoopManagerBoost.h)
 endif()
 
 set(METAPROGRAMMING_HEADERS

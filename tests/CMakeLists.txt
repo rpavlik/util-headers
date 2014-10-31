@@ -228,10 +228,11 @@ add_boost_test(TypeId
 	Map
 	TransitivityOfOrderingAndEquality)
 
-if(UTIL_USE_BOOST_THREAD)
-	add_boost_test(RunLoopManager
+if(Boost_THREAD_LIBRARY)
+	add_boost_test(RunLoopManagerBoost
 		SOURCES
-		RunLoopManager.cpp
+		RunLoopManagerBoost.cpp
+		RunLoopManager_common.h
 		LIBRARIES
 		${Boost_THREAD_LIBRARY}
 		${Boost_DATE_TIME_LIBRARY}

@@ -26,12 +26,7 @@
 // - none
 
 // Library/third-party includes
-#ifdef UTIL_USE_BOOST_THREAD
-#include <boost/thread.hpp>
-#else
-#include <vpr/Sync/CondVar.h>
-#include <vpr/Sync/Guard.h>
-#endif
+#include <boost/noncopyable.hpp>
 
 // Standard includes
 // - none
@@ -63,101 +58,55 @@ public:
 		STATE_RUNNING
 	};
 	virtual void reportStateChange_(RunningState s) = 0;
-	virtual void reportStopped_();
+	virtual void reportStopped_() = 0;
 };
 
-namespace policy {
-#ifdef UTIL_USE_BOOST_THREAD
-	class BoostConditionVarAndMutex {
-	public:
-		typedef boost::unique_lock<boost::mutex> GuardType;
-
-		GuardType lock() {
-			return GuardType(mut_);
-		}
-		void wait(GuardType & g) {
-			stateCond_.wait(g);
-		}
-
-		void notify() {
-			stateCond_.notify_all();
-		}
-	private:
-		boost::mutex mut_;
-		boost::condition_variable stateCond_;
-
-	};
-	typedef BoostConditionVarAndMutex DefaultCondVarPolicy;
-#else
-	class VPRConditionVarAndMutex {
-	public:
-		typedef vpr::Guard<vpr::CondVar> GuardType;
-
-		GuardType lock() {
-			return GuardType(stateCond_);
-		}
-		void wait(GuardType &) {
-			stateCond_.wait();
-		}
-
-		void notify() {
-			stateCond_.broadcast();
-		}
-	private:
-		vpr::CondVar stateCond_;
-	};
-	typedef VPRConditionVarAndMutex DefaultCondVarPolicy;
-#endif
-}// end of namespace policy
-
-template<typename CondVarPolicy = policy::DefaultCondVarPolicy>
-class RunLoopManager : public StartingInterface,
-    public LoopInterface,
-    public ShutdownInterface,
-	private LoopGuardInterface {
+/// @brief Base class for implementations of a RunLoopManager that use
+/// various synchronization libraries.
+class RunLoopManagerBase : public StartingInterface,
+	public LoopInterface,
+	public ShutdownInterface,
+	public LoopGuardInterface {
 public:
-    RunLoopManager()
-        : currentState_(STATE_STOPPED)
-        , shouldStop_(false) {}
-    /// @name StartingInterface
-    /// @{
-    void signalStart();
-    void signalAndWaitForStart();
-    /// @}
+	RunLoopManagerBase()
+		: shouldStop_(false) {}
 
-    /// @name LoopInterface
-    /// @{
-    void reportRunning();
-    bool shouldContinue();
-    /// @}
-
-    /// @name ShutdownInterface
-    /// @{
-    void signalShutdown();
-    void signalAndWaitForShutdown();
-    /// @}
-
-private:
-	/// @name LoopGuardInterface
+	/// @name StartingInterface
 	/// @{
-	virtual void reportStateChange_(RunningState s);
-	virtual void reportStopped_();
+	virtual void signalStart(); ///< shared implementation provided
+	virtual void signalAndWaitForStart() = 0;
 	/// @}
 
-    /// protected by condition variable
-	volatile LoopGuardInterface::RunningState currentState_;
-    
+	/// @name LoopInterface
+	/// @{
+	virtual void reportRunning() = 0;
+	virtual bool shouldContinue(); ///< shared implementation provided
+	/// @}
 
-    /// One-way signalling flag from outside to the runloop.
-    volatile bool shouldStop_;
-	CondVarPolicy condVarWrapper_;
-	typedef typename CondVarPolicy::GuardType GuardType;
+	/// @name ShutdownInterface
+	/// @{
+	virtual void signalShutdown() = 0;
+	virtual void signalAndWaitForShutdown() = 0;
+	/// @}
 
-    friend class LoopGuard;
+
+	/// @name LoopGuardInterface
+	/// @{
+	void reportStateChange_(RunningState s) = 0;
+	void reportStopped_() = 0;
+	/// @}
+
+protected:
+	/// @brief internal utility function.
+	void setShouldStop_(bool value); ///< shared implementation provided
+
+private:
+	/// One-way signalling flag from outside to the runloop.
+	volatile bool shouldStop_;
 };
 
 /// @brief RAII class to signal loop start and end.
-class LoopGuard {
+class LoopGuard : boost::noncopyable {
 public:
     enum StartTime {
         REPORT_START_IMMEDIATELY,
@@ -170,6 +119,18 @@ private:
 	LoopGuardInterface &mgr_;
 };
 
+
+inline bool RunLoopManagerBase::shouldContinue() {
+	return !shouldStop_;
+}
+
+inline void RunLoopManagerBase::signalStart() {
+	/// @todo how?
+}
+inline void RunLoopManagerBase::setShouldStop_(bool value) {
+	shouldStop_ = value;
+}
+
 inline LoopGuard::LoopGuard(LoopGuardInterface &mgr, LoopGuard::StartTime t)
     : mgr_(mgr) {
 	mgr_.reportStateChange_(LoopGuardInterface::STATE_STARTING);
@@ -180,69 +141,6 @@ inline LoopGuard::LoopGuard(LoopGuardInterface &mgr, LoopGuard::StartTime t)
 
 inline LoopGuard::~LoopGuard() {
     mgr_.reportStopped_();
-}
-
-template<typename CondVarPolicy>
-inline void RunLoopManager<CondVarPolicy>::reportRunning() {
-	reportStateChange_(LoopGuardInterface::STATE_RUNNING);
-}
-
-template<typename CondVarPolicy>
-inline void RunLoopManager<CondVarPolicy>::reportStateChange_(typename RunLoopManager::RunningState s) {
-    GuardType condGuard(condVarWrapper_.lock());
-    currentState_ = s;
-	condVarWrapper_.notify();
-}
-
-template<typename CondVarPolicy>
-inline void RunLoopManager<CondVarPolicy>::reportStopped_() {
-    {
-		GuardType condGuard(condVarWrapper_.lock());
-        shouldStop_ = false;
-    }
-    reportStateChange_(STATE_STOPPED);
-}
-
-template<typename CondVarPolicy>
-inline void RunLoopManager<CondVarPolicy>::signalStart() {
-    /// @todo how?
-}
-
-template<typename CondVarPolicy>
-inline void RunLoopManager<CondVarPolicy>::signalAndWaitForStart() {
-    signalStart();
-    {
-		GuardType condGuard(condVarWrapper_.lock());
-        while (currentState_ != STATE_RUNNING) {
-			condVarWrapper_.wait(condGuard);
-        }
-    }
-}
-
-template<typename CondVarPolicy>
-inline bool RunLoopManager<CondVarPolicy>::shouldContinue() {
-    return !shouldStop_;
-}
-
-template<typename CondVarPolicy>
-inline void RunLoopManager<CondVarPolicy>::signalShutdown() {
-	GuardType condGuard(condVarWrapper_.lock());
-    if (currentState_ != STATE_STOPPED) {
-        shouldStop_ = true;
-    }
-}
-
-template<typename CondVarPolicy>
-inline void RunLoopManager<CondVarPolicy>::signalAndWaitForShutdown() {
-	GuardType condGuard(condVarWrapper_.lock());
-
-    if (currentState_ != STATE_STOPPED) {
-        shouldStop_ = true;
-    }
-
-    do {
-		condVarWrapper_.wait(condGuard);
-    } while (currentState_ != STATE_STOPPED);
 }
 
 } // end of namespace util
