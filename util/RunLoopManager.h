@@ -19,8 +19,8 @@
 //     (See accompanying file LICENSE_1_0.txt or copy at
 //           http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef INCLUDED_RunLoopManager_h_GUID_BA7B4F6C_23EE_49B3_7808_3DC84AE7E7FD
-#define INCLUDED_RunLoopManager_h_GUID_BA7B4F6C_23EE_49B3_7808_3DC84AE7E7FD
+#ifndef INCLUDED_RunLoopManager_h_GUID_cca4d4ff_064a_48bb_44db_b8414fb8d202
+#define INCLUDED_RunLoopManager_h_GUID_cca4d4ff_064a_48bb_44db_b8414fb8d202
 
 // Internal Includes
 // - none
@@ -32,7 +32,7 @@
 // Standard includes
 // - none
 
-namespace vrjLua {
+namespace util {
 class StartingInterface {
 public:
     virtual void signalStart() = 0;
@@ -179,6 +179,6 @@ inline void RunLoopManager::signalAndWaitForShutdown() {
     } while (currentState_ != STATE_STOPPED);
 }
 
-} // end of namespace vrjLua
+} // end of namespace util
 
-#endif // INCLUDED_RunLoopManager_h_GUID_BA7B4F6C_23EE_49B3_7808_3DC84AE7E7FD
+#endif // INCLUDED_RunLoopManager_h_GUID_cca4d4ff_064a_48bb_44db_b8414fb8d202

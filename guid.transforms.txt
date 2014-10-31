@@ -26,3 +26,4 @@ s:96d717cd_827b_4889_8505_6a9102af0dae:booststdint.h:
 s:8edbb1ee_508f_43e1_858e_c11b7604eb0f:gmtlToOsgMatrix.h:
 s:2797fe05_9123_4e96_95fc_48f4cd51828f:launchByAssociation.h:
 s:981f9445_6d58_462f_8452_6937dfac9a52:osgFindNamedNode.h:
+s:cca4d4ff_064a_48bb_44db_b8414fb8d202:RunLoopManager.h:
