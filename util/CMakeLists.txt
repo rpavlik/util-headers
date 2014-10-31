@@ -34,7 +34,7 @@ else()
 		BlockingInvokeFunctorVPR.h
 		RunLoopManagerVPR.h)
 endif()
-if(Boost_THREAD_LIBRARY)
+if(Boost_THREAD_LIBRARY AND CMAKE_THREAD_LIBS_INIT)
 	list(APPEND DATASTRUCTURES_HEADERS
 		RunLoopManagerBoost.h)
 else()

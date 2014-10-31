@@ -228,7 +228,7 @@ add_boost_test(TypeId
 	Map
 	TransitivityOfOrderingAndEquality)
 
-if(Boost_THREAD_LIBRARY)
+if(Boost_THREAD_LIBRARY AND CMAKE_THREAD_LIBS_INIT)
 	add_boost_test(RunLoopManagerBoost
 		SOURCES
 		RunLoopManagerBoost.cpp
@@ -237,7 +237,8 @@ if(Boost_THREAD_LIBRARY)
 		${Boost_THREAD_LIBRARY}
 		${Boost_DATE_TIME_LIBRARY}
 		${Boost_SYSTEM_LIBRARY}
-		${Boost_CHRONO_LIBRARY})
+		${Boost_CHRONO_LIBRARY}
+        ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
 if(NOT MSVC)

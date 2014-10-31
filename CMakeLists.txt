@@ -41,6 +41,8 @@ set_default_build_type(RelWithDebInfo)
 find_package(Boost REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 
+find_package(Threads)
+
 find_package(VRJuggler COMPONENTS vpr)
 if(VPR20_FOUND OR VPR22_FOUND)
     set(VPR_FOUND TRUE)

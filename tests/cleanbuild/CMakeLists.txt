@@ -19,12 +19,13 @@ else()
 	list(REMOVE_ITEM HEADERS osgFindNamedNode.h)
 endif()
 
-if(Boost_THREAD_LIBRARY)
+if(Boost_THREAD_LIBRARY AND CMAKE_THREAD_LIBS_INIT)
 	set(LIBRARIES_RunLoopManagerBoost
 		${Boost_THREAD_LIBRARY}
 		${Boost_DATE_TIME_LIBRARY}
 		${Boost_SYSTEM_LIBRARY}
-		${Boost_CHRONO_LIBRARY})
+		${Boost_CHRONO_LIBRARY}
+        ${CMAKE_THREAD_LIBS_INIT})
 else()
 	list(REMOVE_ITEM HEADERS RunLoopManagerBoost.h)
 endif()
