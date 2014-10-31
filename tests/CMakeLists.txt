@@ -228,6 +228,17 @@ add_boost_test(TypeId
 	Map
 	TransitivityOfOrderingAndEquality)
 
+if(UTIL_USE_BOOST_THREAD)
+	add_boost_test(RunLoopManager
+		SOURCES
+		RunLoopManager.cpp
+		LIBRARIES
+		${Boost_THREAD_LIBRARY}
+		${Boost_DATE_TIME_LIBRARY}
+		${Boost_SYSTEM_LIBRARY}
+		${Boost_CHRONO_LIBRARY})
+endif()
+
 if(NOT MSVC)
 	# TODO why is this broken on MSVC?
 	find_package(Boost COMPONENTS serialization)

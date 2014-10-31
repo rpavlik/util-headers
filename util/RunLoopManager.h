@@ -26,8 +26,12 @@
 // - none
 
 // Library/third-party includes
+#ifdef UTIL_USE_BOOST_THREAD
+#include <boost/thread.hpp>
+#else
 #include <vpr/Sync/CondVar.h>
 #include <vpr/Sync/Guard.h>
+#endif
 
 // Standard includes
 // - none

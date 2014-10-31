@@ -24,13 +24,18 @@ set(DATASTRUCTURES_HEADERS
 	VectorSimulator.h
 	WithHistory.h)
 
-if(VPR22_FOUND OR VPR20_FOUND)
+if(VPR_FOUND)
 	list(APPEND DATASTRUCTURES_HEADERS
-		BlockingInvokeFunctorVPR.h
+		BlockingInvokeFunctorVPR.h)
+else()
+	list(APPEND UNTESTED_HEADERS
+		BlockingInvokeFunctorVPR.h)
+endif()
+if(UTIL_USE_BOOST_THREAD OR VPR_FOUND)
+    list(APPEND DATASTRUCTURES_HEADERS
 		RunLoopManager.h)
 else()
 	list(APPEND UNTESTED_HEADERS
-		BlockingInvokeFunctorVPR.h
 		RunLoopManager.h)
 endif()
 

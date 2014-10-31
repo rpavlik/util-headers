@@ -42,8 +42,19 @@ find_package(Boost REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 
 find_package(VRJuggler COMPONENTS vpr)
+if(VPR20_FOUND OR VPR22_FOUND)
+    set(VPR_FOUND TRUE)
+endif()
 find_package(GMTL)
 find_package(OpenSceneGraph)
+
+set(Boost_USE_STATIC_LIBS ON)
+find_package(Boost COMPONENTS thread date_time chrono system)
+set(Boost_USE_STATIC_LIBS OFF)
+if(Boost_THREAD_LIBRARY AND NOT VPR_FOUND)
+	set(UTIL_USE_BOOST_THREAD YES)
+	add_definitions(-DUTIL_USE_BOOST_THREAD)
+endif()
 
 ###
 # End build configuration
