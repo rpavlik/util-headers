@@ -26,10 +26,12 @@ set(DATASTRUCTURES_HEADERS
 
 if(VPR22_FOUND OR VPR20_FOUND)
 	list(APPEND DATASTRUCTURES_HEADERS
-		BlockingInvokeFunctorVPR.h)
+		BlockingInvokeFunctorVPR.h
+		RunLoopManager.h)
 else()
 	list(APPEND UNTESTED_HEADERS
-		BlockingInvokeFunctorVPR.h)
+		BlockingInvokeFunctorVPR.h
+		RunLoopManager.h)
 endif()
 
 set(METAPROGRAMMING_HEADERS
@@ -57,6 +59,7 @@ else()
 	list(APPEND UNTESTED_HEADERS
 		osgFindNamedNode.h)
 endif()
+
 if(OPENSCENEGRAPH_FOUND AND GMTL_FOUND)
 	list(APPEND FREEFUNCTION_HEADERS
 		gmtlToOsgMatrix.h)
