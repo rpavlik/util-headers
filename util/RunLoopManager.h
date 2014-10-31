@@ -55,9 +55,66 @@ public:
     virtual void signalAndWaitForShutdown() = 0;
 };
 
+class LoopGuardInterface {
+public:
+	enum RunningState {
+		STATE_STOPPED,
+		STATE_STARTING,
+		STATE_RUNNING
+	};
+	virtual void reportStateChange_(RunningState s) = 0;
+	virtual void reportStopped_();
+};
+
+namespace policy {
+#ifdef UTIL_USE_BOOST_THREAD
+	class BoostConditionVarAndMutex {
+	public:
+		typedef boost::unique_lock<boost::mutex> GuardType;
+
+		GuardType lock() {
+			return GuardType(mut_);
+		}
+		void wait(GuardType & g) {
+			stateCond_.wait(g);
+		}
+
+		void notify() {
+			stateCond_.notify_all();
+		}
+	private:
+		boost::mutex mut_;
+		boost::condition_variable stateCond_;
+
+	};
+	typedef BoostConditionVarAndMutex DefaultCondVarPolicy;
+#else
+	class VPRConditionVarAndMutex {
+	public:
+		typedef vpr::Guard<vpr::CondVar> GuardType;
+
+		GuardType lock() {
+			return GuardType(stateCond_);
+		}
+		void wait(GuardType &) {
+			stateCond_.wait();
+		}
+
+		void notify() {
+			stateCond_.broadcast();
+		}
+	private:
+		vpr::CondVar stateCond_;
+	};
+	typedef VPRConditionVarAndMutex DefaultCondVarPolicy;
+#endif
+}// end of namespace policy
+
+template<typename CondVarPolicy = policy::DefaultCondVarPolicy>
 class RunLoopManager : public StartingInterface,
     public LoopInterface,
-    public ShutdownInterface {
+    public ShutdownInterface,
+	private LoopGuardInterface {
 public:
     RunLoopManager()
         : currentState_(STATE_STOPPED)
@@ -81,22 +138,20 @@ public:
     /// @}
 
 private:
-    enum RunningState {
-        STATE_STOPPED,
-        STATE_STARTING,
-        STATE_RUNNING
-    };
-    void reportStateChange_(RunningState s);
-    void reportStopped_();
+	/// @name LoopGuardInterface
+	/// @{
+	virtual void reportStateChange_(RunningState s);
+	virtual void reportStopped_();
+	/// @}
 
     /// protected by condition variable
-    volatile RunningState currentState_;
-    vpr::CondVar stateCond_;
+	volatile LoopGuardInterface::RunningState currentState_;
+    
 
     /// One-way signalling flag from outside to the runloop.
     volatile bool shouldStop_;
-
-    typedef vpr::Guard<vpr::CondVar> GuardType;
+	CondVarPolicy condVarWrapper_;
+	typedef typename CondVarPolicy::GuardType GuardType;
 
     friend class LoopGuard;
 };
@@ -108,18 +163,18 @@ public:
         REPORT_START_IMMEDIATELY,
         DELAY_REPORTING_START
     };
-    LoopGuard(RunLoopManager &mgr, StartTime t = REPORT_START_IMMEDIATELY);
+    LoopGuard(LoopGuardInterface &mgr, StartTime t = REPORT_START_IMMEDIATELY);
     ~LoopGuard();
 
 private:
-    RunLoopManager &mgr_;
+	LoopGuardInterface &mgr_;
 };
 
-inline LoopGuard::LoopGuard(RunLoopManager &mgr, LoopGuard::StartTime t)
+inline LoopGuard::LoopGuard(LoopGuardInterface &mgr, LoopGuard::StartTime t)
     : mgr_(mgr) {
-    mgr_.reportStateChange_(RunLoopManager::STATE_STARTING);
+	mgr_.reportStateChange_(LoopGuardInterface::STATE_STARTING);
     if (t == REPORT_START_IMMEDIATELY) {
-        mgr_.reportStateChange_(RunLoopManager::STATE_RUNNING);
+		mgr_.reportStateChange_(LoopGuardInterface::STATE_RUNNING);
     }
 }
 
@@ -127,59 +182,66 @@ inline LoopGuard::~LoopGuard() {
     mgr_.reportStopped_();
 }
 
-inline void RunLoopManager::reportRunning() {
-    reportStateChange_(STATE_RUNNING);
+template<typename CondVarPolicy>
+inline void RunLoopManager<CondVarPolicy>::reportRunning() {
+	reportStateChange_(LoopGuardInterface::STATE_RUNNING);
 }
 
-inline void
-RunLoopManager::reportStateChange_(RunLoopManager::RunningState s) {
-    GuardType condGuard(stateCond_);
+template<typename CondVarPolicy>
+inline void RunLoopManager<CondVarPolicy>::reportStateChange_(typename RunLoopManager::RunningState s) {
+    GuardType condGuard(condVarWrapper_.lock());
     currentState_ = s;
-    stateCond_.broadcast();
+	condVarWrapper_.notify();
 }
 
-inline void RunLoopManager::reportStopped_() {
+template<typename CondVarPolicy>
+inline void RunLoopManager<CondVarPolicy>::reportStopped_() {
     {
-        GuardType condGuard(stateCond_);
+		GuardType condGuard(condVarWrapper_.lock());
         shouldStop_ = false;
     }
     reportStateChange_(STATE_STOPPED);
 }
 
-inline void RunLoopManager::signalStart() {
+template<typename CondVarPolicy>
+inline void RunLoopManager<CondVarPolicy>::signalStart() {
     /// @todo how?
 }
 
-inline void RunLoopManager::signalAndWaitForStart() {
+template<typename CondVarPolicy>
+inline void RunLoopManager<CondVarPolicy>::signalAndWaitForStart() {
     signalStart();
     {
-        GuardType condGuard(stateCond_);
+		GuardType condGuard(condVarWrapper_.lock());
         while (currentState_ != STATE_RUNNING) {
-            stateCond_.wait();
+			condVarWrapper_.wait(condGuard);
         }
     }
 }
 
-inline bool RunLoopManager::shouldContinue() {
+template<typename CondVarPolicy>
+inline bool RunLoopManager<CondVarPolicy>::shouldContinue() {
     return !shouldStop_;
 }
 
-inline void RunLoopManager::signalShutdown() {
-    GuardType condGuard(stateCond_);
+template<typename CondVarPolicy>
+inline void RunLoopManager<CondVarPolicy>::signalShutdown() {
+	GuardType condGuard(condVarWrapper_.lock());
     if (currentState_ != STATE_STOPPED) {
         shouldStop_ = true;
     }
 }
 
-inline void RunLoopManager::signalAndWaitForShutdown() {
-    GuardType condGuard(stateCond_);
+template<typename CondVarPolicy>
+inline void RunLoopManager<CondVarPolicy>::signalAndWaitForShutdown() {
+	GuardType condGuard(condVarWrapper_.lock());
 
     if (currentState_ != STATE_STOPPED) {
         shouldStop_ = true;
     }
 
     do {
-        stateCond_.wait();
+		condVarWrapper_.wait(condGuard);
     } while (currentState_ != STATE_STOPPED);
 }
 
