@@ -70,7 +70,7 @@ public:
     bool shouldContinue();
     /// @}
 
-    /// @name LoopInterface
+    /// @name ShutdownInterface
     /// @{
     void signalShutdown();
     void signalAndWaitForShutdown();
