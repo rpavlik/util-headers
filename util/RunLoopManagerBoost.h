@@ -72,10 +72,6 @@ private:
     
     /// protected by condition variable
 	volatile LoopGuardInterface::RunningState currentState_;
-    
-
-    /// One-way signalling flag from outside to the runloop.
-    volatile bool shouldStop_;
 
 };
 
