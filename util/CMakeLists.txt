@@ -9,6 +9,7 @@ set(UTIL_HEADERS
 
 set(DATASTRUCTURES_HEADERS
 	BlockingInvokeFunctor.h
+	BlockingInvokeFunctorVPR.h
 	booststdint.h
 	CountedUniqueValues.h
 	FusionMapToTemplate.h
@@ -16,6 +17,8 @@ set(DATASTRUCTURES_HEADERS
 	RangedInt.h
 	ReceiveBuffer.h
 	RunLoopManager.h
+	RunLoopManagerBoost.h
+	RunLoopManagerVPR.h
 	SearchPath.h
 	Set2.h
 	SplitMap.h
@@ -24,23 +27,6 @@ set(DATASTRUCTURES_HEADERS
 	ValueToTemplatePolicy.h
 	VectorSimulator.h
 	WithHistory.h)
-
-if(VPR_FOUND)
-	list(APPEND DATASTRUCTURES_HEADERS
-		BlockingInvokeFunctorVPR.h
-		RunLoopManagerVPR.h)
-else()
-	list(APPEND UNTESTED_HEADERS
-		BlockingInvokeFunctorVPR.h
-		RunLoopManagerVPR.h)
-endif()
-if(Boost_THREAD_LIBRARY AND CMAKE_THREAD_LIBS_INIT)
-	list(APPEND DATASTRUCTURES_HEADERS
-		RunLoopManagerBoost.h)
-else()
-	list(APPEND UNTESTED_HEADERS
-		RunLoopManagerBoost.h)
-endif()
 
 set(METAPROGRAMMING_HEADERS
 	MPLApplyAt.h
@@ -58,24 +44,9 @@ set(MATH_HEADERS
 set(FREEFUNCTION_HEADERS
 	ChangeFileExtension.h
 	GetLocalComputerName.h
-	launchByAssociation.h)
-
-if(OPENSCENEGRAPH_FOUND)
-	list(APPEND FREEFUNCTION_HEADERS
-		osgFindNamedNode.h)
-else()
-	list(APPEND UNTESTED_HEADERS
-		osgFindNamedNode.h)
-endif()
-
-if(OPENSCENEGRAPH_FOUND AND GMTL_FOUND)
-	list(APPEND FREEFUNCTION_HEADERS
-		gmtlToOsgMatrix.h)
-else()
-	list(APPEND UNTESTED_HEADERS
-		gmtlToOsgMatrix.h)
-endif()
-
+	gmtlToOsgMatrix.h
+	launchByAssociation.h
+	osgFindNamedNode.h)
 
 add_custom_target(util
 	SOURCES
@@ -98,7 +69,37 @@ add_custom_target(util-FreeFunctions
 	SOURCES
 	${FREEFUNCTION_HEADERS})
 
+###
+# Remove headers we can't test from the build list, but not the IDE
+###
+
 set(HEADERS ${UTIL_HEADERS} ${DATASTRUCTURES_HEADERS} ${MATH_HEADERS} ${METAPROGRAMMING_HEADERS} ${FREEFUNCTION_HEADERS})
+
+if(NOT VPR_FOUND)
+	list(APPEND UNTESTED_HEADERS
+		BlockingInvokeFunctorVPR.h
+		RunLoopManagerVPR.h)
+	list(REMOVE_ITEM HEADERS
+		BlockingInvokeFunctorVPR.h
+		RunLoopManagerVPR.h)
+endif()
+
+if(NOT (Boost_THREAD_LIBRARY AND CMAKE_THREAD_LIBS_INIT))
+	list(APPEND UNTESTED_HEADERS RunLoopManagerBoost.h)
+	list(REMOVE_ITEM HEADERS RunLoopManagerBoost.h)
+endif()
+
+if(NOT OPENSCENEGRAPH_FOUND)
+	list(APPEND UNTESTED_HEADERS osgFindNamedNode.h)
+	list(REMOVE_ITEM HEADERS osgFindNamedNode.h)
+endif()
+
+if(NOT (OPENSCENEGRAPH_FOUND AND GMTL_FOUND))
+	list(APPEND UNTESTED_HEADERS gmtlToOsgMatrix.h)
+	list(REMOVE_ITEM HEADERS gmtlToOsgMatrix.h)
+endif()
+
+
 set(HEADERS ${HEADERS} PARENT_SCOPE)
 set(UNTESTED_HEADERS ${UNTESTED_HEADERS} PARENT_SCOPE)
 
