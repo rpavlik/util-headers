@@ -88,17 +88,12 @@ inline void RunLoopManagerBoost::signalAndWaitForStart() {
 
 inline void RunLoopManagerBoost::signalShutdown() {
 	Lock condGuard(mut_);
-	if (currentState_ != STATE_STOPPED) {
-		setShouldStop_(true);
-	}
+	setShouldStop_(true);
 }
 
 inline void RunLoopManagerBoost::signalAndWaitForShutdown() {
 	Lock condGuard(mut_);
-
-	if (currentState_ != STATE_STOPPED) {
-		setShouldStop_(true);
-	}
+	setShouldStop_(true);
 
 	while (currentState_ != STATE_STOPPED) {
 		stateCond_.wait(condGuard);
