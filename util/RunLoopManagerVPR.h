@@ -1,14 +1,14 @@
 /** @file
-        @versioninfo@
+		@versioninfo@
 
-        @date 2013
+		@date 2013
 
-        @author
-        Ryan Pavlik
-        <rpavlik@iastate.edu> and <abiryan@ryand.net>
-        http://academic.cleardefinition.com/
-        Iowa State University Virtual Reality Applications Center
-        Human-Computer Interaction Graduate Program
+		@author
+		Ryan Pavlik
+		<rpavlik@iastate.edu> and <abiryan@ryand.net>
+		http://academic.cleardefinition.com/
+		Iowa State University Virtual Reality Applications Center
+		Human-Computer Interaction Graduate Program
 
 */
 
@@ -19,7 +19,6 @@
 
 #ifndef INCLUDED_RunLoopManagerVPR_h_GUID_fdb74ed3_ce09_429f_b76d_877a8c0a4f91
 #define INCLUDED_RunLoopManagerVPR_h_GUID_fdb74ed3_ce09_429f_b76d_877a8c0a4f91
-
 
 // Internal Includes
 #include "RunLoopManager.h"
@@ -35,99 +34,68 @@ namespace util {
 
 class RunLoopManagerVPR : public RunLoopManagerBase {
 public:
-    RunLoopManagerVPR()
-        : currentState_(STATE_STOPPED) {}
+	RunLoopManagerVPR() : currentState_(STATE_STOPPED) {}
 
-    /// @name StartingInterface
-    /// @{
-    /*void signalStart();*/
-    void signalAndWaitForStart();
-    /// @}
-
-    /// @name LoopInterface
-    /// @{
-    void reportRunning();
-    /*bool shouldContinue();*/
-    /// @}
-
-    /// @name ShutdownInterface
-    /// @{
-    void signalShutdown();
-    void signalAndWaitForShutdown();
-    /// @}
-
-
-	/// @name LoopGuardInterface
+	/// @name StartingInterface
 	/// @{
-	void reportStateChange_(RunningState s);
-	void reportStopped_();
+	void signalStart();
+	void signalAndWaitForStart();
 	/// @}
+
+	/// @name ShutdownInterface
+	/// @{
+	void signalShutdown();
+	void signalAndWaitForShutdown();
+	/// @}
+
 private:
-    vpr::CondVar stateCond_;
-    
-    typedef vpr::Guard<vpr::CondVar> Lock;
-    
-    /// protected by condition variable
-	volatile LoopGuardInterface::RunningState currentState_;
-    
+	void reportStateChange_(RunningState s);
+	vpr::CondVar stateCond_;
 
-    /// One-way signalling flag from outside to the runloop.
-    volatile bool shouldStop_;
+	typedef vpr::Guard<vpr::CondVar> Lock;
 
+	/// protected by condition variable
+	volatile RunningState currentState_;
 };
 
-inline void RunLoopManagerVPR::reportRunning() {
-	reportStateChange_(LoopGuardInterface::STATE_RUNNING);
+inline void RunLoopManagerVPR::signalStart() {
+	Lock condGuard(stateCond_);
+	setShouldStop_(false);
 }
 
-inline void RunLoopManagerVPR::reportStateChange_(RunLoopManagerBase::RunningState s) {
-    {
-        Lock condGuard(stateCond_);
-        currentState_ = s;
-    }
+inline void
+RunLoopManagerVPR::reportStateChange_(RunLoopManagerBase::RunningState s) {
+	{
+		Lock condGuard(stateCond_);
+		currentState_ = s;
+	}
 	stateCond_.broadcast();
 }
 
-
-inline void RunLoopManagerVPR::reportStopped_() {
-    {
-        Lock condGuard(stateCond_);
-        setShouldStop_(false);
-    }
-    reportStateChange_(STATE_STOPPED);
-}
-
 inline void RunLoopManagerVPR::signalAndWaitForStart() {
-    signalStart();
-    {
+	signalStart();
+	{
 		Lock condGuard(stateCond_);
-        while (currentState_ != STATE_RUNNING) {
-			stateCont_.wait(condGuard);
-        }
-    }
+		while (currentState_ != STATE_RUNNING) {
+			stateCond_.wait(condGuard);
+		}
+	}
 }
 
 inline void RunLoopManagerVPR::signalShutdown() {
 	Lock condGuard(stateCond_);
-    if (currentState_ != STATE_STOPPED) {
-        setShouldStop_(true);
-    }
+	setShouldStop_(true);
 }
-
 
 inline void RunLoopManagerVPR::signalAndWaitForShutdown() {
 	Lock condGuard(stateCond_);
+	setShouldStop_(true);
 
-    if (currentState_ != STATE_STOPPED) {
-        setShouldStop_(true);
-    }
-
-    do {
-		stateCont_.wait(condGuard);
-    } while (currentState_ != STATE_STOPPED);
+	while (currentState_ != STATE_STOPPED) {
+		stateCond_.wait(condGuard);
+	}
 }
 
 } // end of namespace util
 
 #endif // INCLUDED_RunLoopManagerVPR_h_GUID_fdb74ed3_ce09_429f_b76d_877a8c0a4f91
-
