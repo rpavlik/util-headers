@@ -61,19 +61,8 @@ private:
 };
 
 inline void RunLoopManagerBoost::signalStart() {
-	{
-		Lock condGuard(mut_);
-		setShouldStop_(false);
-	}
-}
-
-inline void
-RunLoopManagerBoost::reportStateChange_(RunLoopManagerBase::RunningState s) {
-	{
-		Lock condGuard(mut_);
-		currentState_ = s;
-	}
-	stateCond_.notify_all();
+	Lock condGuard(mut_);
+	setShouldStop_(false);
 }
 
 inline void RunLoopManagerBoost::signalAndWaitForStart() {
@@ -98,6 +87,15 @@ inline void RunLoopManagerBoost::signalAndWaitForShutdown() {
 	while (currentState_ != STATE_STOPPED) {
 		stateCond_.wait(condGuard);
 	}
+}
+
+inline void
+RunLoopManagerBoost::reportStateChange_(RunLoopManagerBase::RunningState s) {
+	{
+		Lock condGuard(mut_);
+		currentState_ = s;
+	}
+	stateCond_.notify_all();
 }
 
 } // end of namespace util
