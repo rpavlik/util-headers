@@ -66,7 +66,7 @@ public:
 class RunLoopManagerBase : public StartingInterface,
 	public LoopInterface,
 	public ShutdownInterface,
-	public LoopGuardInterface {
+	public LoopGuardInterface, boost::noncopyable{
 public:
 	RunLoopManagerBase()
 		: shouldStop_(false) {}
