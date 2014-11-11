@@ -40,7 +40,7 @@ public:
 
 class LoopInterface {
 public:
-	virtual void reportStarting();
+	virtual void reportStarting() = 0;
 	virtual void reportRunning() = 0;
 	virtual bool shouldContinue() = 0;
 	virtual void reportStopped() = 0;
