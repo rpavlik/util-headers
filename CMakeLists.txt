@@ -18,6 +18,20 @@ set(CPACK_PACKAGE_VERSION
 set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${CPACK_PACKAGE_VERSION}-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
 set(CPACK_SOURCE_PACKAGE_FILE_NAME "${PROJECT_NAME}-${CPACK_PACKAGE_VERSION}-src")
 
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT AND (NOT ONCE_SET_CMAKE_INSTALL_PREFIX))
+	set(ONCE_SET_CMAKE_INSTALL_PREFIX
+		true
+		CACHE
+		INTERNAL
+		"Have we set the install prefix yet?"
+		FORCE)
+	set(CMAKE_INSTALL_PREFIX
+		"${CMAKE_CURRENT_SOURCE_DIR}/installed-headers"
+		CACHE
+		PATH
+		"Install path prefix, prepended onto install directories"
+		FORCE)
+endif()
 ###
 # Perform build configuration of dependencies
 ###
