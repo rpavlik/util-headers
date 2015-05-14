@@ -249,7 +249,7 @@ namespace util {
 
 		inline std::string FilenameTemplate::listOfFilenameTemplatesToString(FilenameTemplate::List const& input, const char delimiter, std::string const& placeholder) {
 			std::ostringstream os;
-			for (int i = 0, n = input.size(); i < n; ++i) {
+			for (size_t i = 0, n = input.size(); i < n; ++i) {
 				os << input[i].getStringWithSubstitution(placeholder);
 				if (i + 1 < n) {
 					os << delimiter;
@@ -261,7 +261,7 @@ namespace util {
 
 		inline std::string FilenameTemplate::listOfDirectoriesToString(FilenameTemplate::List const& input, const char delimiter) {
 			std::ostringstream os;
-			for (int i = 0, n = input.size(); i < n; ++i) {
+			for (size_t i = 0, n = input.size(); i < n; ++i) {
 				os << input[i].getDirectory();
 				if (i + 1 < n) {
 					os << delimiter;
@@ -272,14 +272,14 @@ namespace util {
 
 		template<typename T>
 		inline void FilenameTemplate::forEachFilenameTemplate(FilenameTemplate::List const& input, T functor) {
-			for (int i = 0, n = input.size(); i < n; ++i) {
+			for (size_t i = 0, n = input.size(); i < n; ++i) {
 				functor(input[i]);
 			}
 		}
 
 		template<typename T>
 		inline void FilenameTemplate::forEachFilenameTemplateWithPlaceholder(FilenameTemplate::List const& input, T functor) {
-			for (int i = 0, n = input.size(); i < n; ++i) {
+			for (size_t i = 0, n = input.size(); i < n; ++i) {
 				if (input[i].hasPlaceholder()) {
 					functor(input[i]);
 				}
@@ -288,7 +288,7 @@ namespace util {
 
 		template<typename T>
 		inline void FilenameTemplate::forEachDirectory(FilenameTemplate::List const& input, T functor)  {
-			for (int i = 0, n = input.size(); i < n; ++i) {
+			for (size_t i = 0, n = input.size(); i < n; ++i) {
 				if (input[i].isDirectory()) {
 					functor(input[i].getDirectory());
 				}
