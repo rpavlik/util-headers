@@ -32,69 +32,69 @@
 
 namespace util {
 
-class RunLoopManagerVPR : public RunLoopManagerBase {
-public:
-	RunLoopManagerVPR() : currentState_(STATE_STOPPED) {}
+	class RunLoopManagerVPR : public RunLoopManagerBase {
+		public:
+			RunLoopManagerVPR() : currentState_(STATE_STOPPED) {}
 
-	/// @name StartingInterface
-	/// @{
-	void signalStart();
-	void signalAndWaitForStart();
-	/// @}
+			/// @name StartingInterface
+			/// @{
+			void signalStart();
+			void signalAndWaitForStart();
+			/// @}
 
-	/// @name ShutdownInterface
-	/// @{
-	void signalShutdown();
-	void signalAndWaitForShutdown();
-	/// @}
+			/// @name ShutdownInterface
+			/// @{
+			void signalShutdown();
+			void signalAndWaitForShutdown();
+			/// @}
 
-private:
-	void reportStateChange_(RunningState s);
-	vpr::CondVar stateCond_;
+		private:
+			void reportStateChange_(RunningState s);
+			vpr::CondVar stateCond_;
 
-	typedef vpr::Guard<vpr::CondVar> Lock;
+			typedef vpr::Guard<vpr::CondVar> Lock;
 
-	/// protected by condition variable
-	volatile RunningState currentState_;
-};
+			/// protected by condition variable
+			volatile RunningState currentState_;
+	};
 
-inline void RunLoopManagerVPR::signalStart() {
-	Lock condGuard(stateCond_);
-	setShouldStop_(false);
-}
-
-inline void
-RunLoopManagerVPR::reportStateChange_(RunLoopManagerBase::RunningState s) {
-	{
+	inline void RunLoopManagerVPR::signalStart() {
 		Lock condGuard(stateCond_);
-		currentState_ = s;
+		setShouldStop_(false);
 	}
-	stateCond_.broadcast();
-}
 
-inline void RunLoopManagerVPR::signalAndWaitForStart() {
-	signalStart();
-	{
+	inline void
+	RunLoopManagerVPR::reportStateChange_(RunLoopManagerBase::RunningState s) {
+		{
+			Lock condGuard(stateCond_);
+			currentState_ = s;
+		}
+		stateCond_.broadcast();
+	}
+
+	inline void RunLoopManagerVPR::signalAndWaitForStart() {
+		signalStart();
+		{
+			Lock condGuard(stateCond_);
+			while (currentState_ != STATE_RUNNING) {
+				stateCond_.wait(condGuard);
+			}
+		}
+	}
+
+	inline void RunLoopManagerVPR::signalShutdown() {
 		Lock condGuard(stateCond_);
-		while (currentState_ != STATE_RUNNING) {
+		setShouldStop_(true);
+	}
+
+	inline void RunLoopManagerVPR::signalAndWaitForShutdown() {
+		Lock condGuard(stateCond_);
+		setShouldStop_(true);
+
+		while (currentState_ != STATE_STOPPED) {
 			stateCond_.wait(condGuard);
 		}
 	}
-}
-
-inline void RunLoopManagerVPR::signalShutdown() {
-	Lock condGuard(stateCond_);
-	setShouldStop_(true);
-}
-
-inline void RunLoopManagerVPR::signalAndWaitForShutdown() {
-	Lock condGuard(stateCond_);
-	setShouldStop_(true);
-
-	while (currentState_ != STATE_STOPPED) {
-		stateCond_.wait(condGuard);
-	}
-}
 
 } // end of namespace util
 

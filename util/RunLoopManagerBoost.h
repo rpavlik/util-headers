@@ -33,70 +33,70 @@
 
 namespace util {
 
-class RunLoopManagerBoost : public RunLoopManagerBase {
-public:
-	RunLoopManagerBoost() : currentState_(STATE_STOPPED) {}
+	class RunLoopManagerBoost : public RunLoopManagerBase {
+		public:
+			RunLoopManagerBoost() : currentState_(STATE_STOPPED) {}
 
-	/// @name StartingInterface
-	/// @{
-	void signalStart();
-	void signalAndWaitForStart();
-	/// @}
+			/// @name StartingInterface
+			/// @{
+			void signalStart();
+			void signalAndWaitForStart();
+			/// @}
 
-	/// @name ShutdownInterface
-	/// @{
-	void signalShutdown();
-	void signalAndWaitForShutdown();
-	/// @}
+			/// @name ShutdownInterface
+			/// @{
+			void signalShutdown();
+			void signalAndWaitForShutdown();
+			/// @}
 
-private:
-	void reportStateChange_(RunningState s);
-	boost::mutex mut_;
-	boost::condition_variable stateCond_;
+		private:
+			void reportStateChange_(RunningState s);
+			boost::mutex mut_;
+			boost::condition_variable stateCond_;
 
-	typedef boost::unique_lock<boost::mutex> Lock;
+			typedef boost::unique_lock<boost::mutex> Lock;
 
-	/// protected by condition variable
-	volatile RunningState currentState_;
-};
+			/// protected by condition variable
+			volatile RunningState currentState_;
+	};
 
-inline void RunLoopManagerBoost::signalStart() {
-	Lock condGuard(mut_);
-	setShouldStop_(false);
-}
-
-inline void RunLoopManagerBoost::signalAndWaitForStart() {
-	signalStart();
-	{
+	inline void RunLoopManagerBoost::signalStart() {
 		Lock condGuard(mut_);
-		while (currentState_ != STATE_RUNNING) {
+		setShouldStop_(false);
+	}
+
+	inline void RunLoopManagerBoost::signalAndWaitForStart() {
+		signalStart();
+		{
+			Lock condGuard(mut_);
+			while (currentState_ != STATE_RUNNING) {
+				stateCond_.wait(condGuard);
+			}
+		}
+	}
+
+	inline void RunLoopManagerBoost::signalShutdown() {
+		Lock condGuard(mut_);
+		setShouldStop_(true);
+	}
+
+	inline void RunLoopManagerBoost::signalAndWaitForShutdown() {
+		Lock condGuard(mut_);
+		setShouldStop_(true);
+
+		while (currentState_ != STATE_STOPPED) {
 			stateCond_.wait(condGuard);
 		}
 	}
-}
 
-inline void RunLoopManagerBoost::signalShutdown() {
-	Lock condGuard(mut_);
-	setShouldStop_(true);
-}
-
-inline void RunLoopManagerBoost::signalAndWaitForShutdown() {
-	Lock condGuard(mut_);
-	setShouldStop_(true);
-
-	while (currentState_ != STATE_STOPPED) {
-		stateCond_.wait(condGuard);
+	inline void
+	RunLoopManagerBoost::reportStateChange_(RunLoopManagerBase::RunningState s) {
+		{
+			Lock condGuard(mut_);
+			currentState_ = s;
+		}
+		stateCond_.notify_all();
 	}
-}
-
-inline void
-RunLoopManagerBoost::reportStateChange_(RunLoopManagerBase::RunningState s) {
-	{
-		Lock condGuard(mut_);
-		currentState_ = s;
-	}
-	stateCond_.notify_all();
-}
 
 } // end of namespace util
 
