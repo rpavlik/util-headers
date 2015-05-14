@@ -108,12 +108,14 @@ add_boost_test(RangedInt
 	OutOfRangeConstructionNotChecked
 	SameRangeCrossChecking)
 
-add_boost_test(FusionMapToTemplate
-	SOURCES
-	FusionMapToTemplate.cpp
-	TESTS
-	SummingFunc
-	KeywiseFunc)
+if(NOT MSVC)
+	add_boost_test(FusionMapToTemplate
+		SOURCES
+		FusionMapToTemplate.cpp
+		TESTS
+		SummingFunc
+		KeywiseFunc)
+endif()
 
 add_boost_test(ValueToTemplate
 	SOURCES
