@@ -243,7 +243,7 @@ namespace util {
 	EIGEN_STRONG_INLINE detail::TieVector<_DIM, Scalar> TieVector _ARGS { \
 		return detail::TieVector<_DIM, Scalar> _ARGNAMES ; \
 	} \
- 
+
 	EIGEN_TIE_DEFINE_CREATION_FUNCTION(1,
 	                                   (Scalar & x0),
 	                                   (x0)

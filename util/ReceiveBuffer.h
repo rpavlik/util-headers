@@ -66,8 +66,8 @@ namespace util {
 			ReceiveBuffer()
 				: _begin(0)
 				, _pastEnd(0)
-				, _contents()
-			{}
+				, _contents() {
+			}
 
 			/// @brief Copy constructor
 			ReceiveBuffer(type const& other)

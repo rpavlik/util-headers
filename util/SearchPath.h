@@ -63,8 +63,8 @@ namespace util {
 
 				/// @brief default constructor - corresponds to "?"
 				FilenameTemplate()
-					: _hasPlaceholder(true)
-				{}
+					: _hasPlaceholder(true) {
+				}
 
 				/** @brief Named constructor for a filename template corresponding
 					to a directory.
@@ -85,8 +85,8 @@ namespace util {
 				FilenameTemplate(std::string const & pre, std::string const & suff)
 					: _prefix(pre)
 					, _suffix(suff)
-					, _hasPlaceholder(true)
-				{}
+					, _hasPlaceholder(true) {
+				}
 
 				/// @}
 

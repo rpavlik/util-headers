@@ -112,8 +112,8 @@ namespace util {
 
 						/// Constructor from a bitset
 						explicit Vertex(BitsetType const& val)
-							: _v(val)
-						{}
+							: _v(val) {
+						}
 
 						/// Constructor from a vertex ID in range 0, 1, ..., 7
 						explicit Vertex(IDType val)
@@ -175,8 +175,8 @@ namespace util {
 						/// Default constructor: constructs face 0
 						Face()
 							: _fixedBit(0)
-							, _bitval(false)
-						{}
+							, _bitval(false) {
+						}
 
 						/// Constructor from a face ID in range 0, 1, ..., 5
 						explicit Face(IDType j)
