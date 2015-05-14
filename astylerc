@@ -1,3 +1,4 @@
+--style=attach
 --indent-classes
 --indent-switches
 --indent-cases
@@ -6,6 +7,5 @@
 --pad-header
 --unpad-paren
 --indent=tab=4
---brackets=attach
 --add-brackets
 --lineend=linux
