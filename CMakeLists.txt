@@ -9,7 +9,7 @@ cmake_minimum_required(VERSION 2.6.2)
 project(util-headers)
 
 set(CPACK_PACKAGE_VENDOR "Iowa State University")
-set(CPACK_PACKAGE_CONTACT "Ryan Pavlik <rpavlik@iastate.edu>")
+set(CPACK_PACKAGE_CONTACT "Ryan Pavlik <abiryan@ryand.net>")
 set(CPACK_PACKAGE_VERSION_MAJOR "1")
 set(CPACK_PACKAGE_VERSION_MINOR "0")
 set(CPACK_PACKAGE_VERSION_PATCH "0")
