@@ -75,28 +75,27 @@ add_custom_target(util-FreeFunctions
 
 set(HEADERS ${UTIL_HEADERS} ${DATASTRUCTURES_HEADERS} ${MATH_HEADERS} ${METAPROGRAMMING_HEADERS} ${FREEFUNCTION_HEADERS})
 
+macro(remove_header_tests)
+	list(APPEND UNTESTED_HEADERS ${ARGN})
+	list(REMOVE_ITEM HEADERS ${ARGN})
+endmacro()
+
 if(NOT VPR_FOUND)
-	list(APPEND UNTESTED_HEADERS
-		BlockingInvokeFunctorVPR.h
-		RunLoopManagerVPR.h)
-	list(REMOVE_ITEM HEADERS
+	remove_header_tests(
 		BlockingInvokeFunctorVPR.h
 		RunLoopManagerVPR.h)
 endif()
 
 if(NOT (Boost_THREAD_LIBRARY AND CMAKE_THREAD_LIBS_INIT))
-	list(APPEND UNTESTED_HEADERS RunLoopManagerBoost.h)
-	list(REMOVE_ITEM HEADERS RunLoopManagerBoost.h)
+	remove_header_tests(RunLoopManagerBoost.h)
 endif()
 
 if(NOT OPENSCENEGRAPH_FOUND)
-	list(APPEND UNTESTED_HEADERS osgFindNamedNode.h)
-	list(REMOVE_ITEM HEADERS osgFindNamedNode.h)
+	remove_header_tests(osgFindNamedNode.h)
 endif()
 
 if(NOT (OPENSCENEGRAPH_FOUND AND GMTL_FOUND))
-	list(APPEND UNTESTED_HEADERS gmtlToOsgMatrix.h)
-	list(REMOVE_ITEM HEADERS gmtlToOsgMatrix.h)
+	remove_header_tests(gmtlToOsgMatrix.h)
 endif()
 
 
