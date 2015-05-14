@@ -102,12 +102,12 @@ message(STATUS "")
 get_git_head_revision(REFSPEC VERSION_DESCRIPTION)
 
 set(versioninfo "This header is maintained as a part of 'util-headers' - you can always
-	find the latest version online at https://github.com/vancegroup/util-headers
+    find the latest version online at https://github.com/rpavlik/util-headers
 
-	This GUID can help identify the project: d1dbc94e-e863-49cf-bc08-ab4d9f486613
+    This GUID can help identify the project: d1dbc94e-e863-49cf-bc08-ab4d9f486613
 
-	This copy of the header is from the revision that Git calls
-	${VERSION_DESCRIPTION}
+   This copy of the header is from the revision that Git calls
+    ${VERSION_DESCRIPTION}
 ")
 
 
@@ -121,7 +121,7 @@ if(GIT_FOUND)
 		OUTPUT_STRIP_TRAILING_WHITESPACE)
 	if(res EQUAL 0)
 		set(versioninfo "${versioninfo}
-	Commit date: ${COMMIT_DATE}")
+    Commit date: ${COMMIT_DATE}")
 	endif()
 endif()
 
