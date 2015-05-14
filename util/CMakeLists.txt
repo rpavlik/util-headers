@@ -18,6 +18,7 @@ set(DATASTRUCTURES_HEADERS
 	ReceiveBuffer.h
 	RunLoopManager.h
 	RunLoopManagerBoost.h
+	RunLoopManagerStd.h
 	RunLoopManagerVPR.h
 	SearchPath.h
 	Set2.h
@@ -88,6 +89,15 @@ endif()
 
 if(NOT (Boost_THREAD_LIBRARY AND CMAKE_THREAD_LIBS_INIT))
 	remove_header_tests(RunLoopManagerBoost.h)
+endif()
+
+if(MSVC AND NOT MSVC_VERSION LESS 1700)
+	# MSVC 2012 and up can support this
+else()
+	# TODO enable C++11 support in compilers where you have to switch it on,
+	# and enable this header then.
+
+	remove_header_tests(RunLoopManagerStd.h)
 endif()
 
 if(NOT OPENSCENEGRAPH_FOUND)
