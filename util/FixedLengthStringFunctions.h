@@ -58,10 +58,10 @@ namespace util {
 /// overrun. Does not correctly handle UTF-8 (may truncate in the middle of a
 /// codepoint).
 template <size_t N> inline void strcpy_safe(char(&dest)[N], const char *src) {
-#if defined(UTILHEADERS_STR_MSRUNTIME)
-	strlcpy(dest, src, N);
-#elif defined(UTILHEADERS_STR_STRLCPY)
-	strncpy_s(dest, src, _TRUNCATE);
+#if defined(UTILHEADERS_STR_STRLCPY)
+    strlcpy(dest, src, N);
+#elif defined(UTILHEADERS_STR_MSRUNTIME)
+    strncpy_s(dest, src, _TRUNCATE);
 #else
 	strncpy(dest, src, N);
 	dest[N - 1] = '\0';
