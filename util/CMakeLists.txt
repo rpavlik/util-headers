@@ -45,6 +45,7 @@ set(MATH_HEADERS
 set(FREEFUNCTION_HEADERS
 	ChangeFileExtension.h
 	GetLocalComputerName.h
+	FixedLengthStringFunctions.h
 	gmtlToOsgMatrix.h
 	launchByAssociation.h
 	osgFindNamedNode.h)
