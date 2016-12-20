@@ -46,6 +46,7 @@ set(MATH_HEADERS
 set(FREEFUNCTION_HEADERS
 	ChangeFileExtension.h
 	GetLocalComputerName.h
+	Finally.h
 	FixedLengthStringFunctions.h
 	gmtlToOsgMatrix.h
 	launchByAssociation.h
@@ -118,6 +119,7 @@ if(NOT (Boost_THREAD_LIBRARY AND CMAKE_THREAD_LIBS_INIT))
 endif()
 
 cxx11_header_tests(RunLoopManagerStd.h
+	Finally.h
 	UniqueDestructionActionWrapper.h
 	ValToHex.h)
 
