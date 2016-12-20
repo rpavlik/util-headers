@@ -4,7 +4,7 @@ BasedOnStyle:  LLVM
 Standard:        Auto
 IndentWidth:     4
 TabWidth:        4
-UseTab:          Always
+UseTab:          Never
 AccessModifierOffset: -4
 NamespaceIndentation: Inner
 
@@ -65,4 +65,3 @@ NamespaceIndentation: Inner
 # SpaceBeforeParens: ControlStatements
 # DisableFormat:   false
 # ...
-
