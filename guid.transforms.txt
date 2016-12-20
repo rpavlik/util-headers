@@ -6,6 +6,7 @@ s:d5bcc295_2389_4737_8bff_bef3653249e8:CountedUniqueValues.h:
 s:eea925df_f01f_4e08_b4db_e9c2800b49a6:CubeComponents.h:
 s:3ebee56a_057c_4186_9e5a_b8efbae15236:EigenMatrixSerialize.h:
 s:6c867047_6869_440c_8724_0d7733c6c7cd:EigenTie.h:
+s:D925FE58_9C57_448B_C0BB_19A42B3243BA:Finally.h:
 s:34010E53_D3F3_42BD_FB36_6D00EA79C3A9:FixedLengthStringFunctions.h:
 s:700bbf73_dd60_462f_9127_edb6b505b3a2:FusionMapToTemplate.h:
 s:40bc94c9_d917_4cc2_9b0b_00fc13454b01:GetLocalComputerName.h:
@@ -26,6 +27,8 @@ s:46b0d167_fb36_4c0a_bacd_134533ccb6a5:SizeGenerator.h:
 s:7c123d17_2fc7_4404_8108_3dc819b374b9:SplitMap.h:
 s:eaa50b9c_e526_4656_89dc_99008d82447d:Stride.h:
 s:db8ba085_2a20_480f_bea4_90d9ca6a4a3c:TypeId.h:
+s:B8BF43A0_9DD7_449D_BE66_A7E3E98BB685:UniqueDestructionActionWrapper.h:
+s:BB84C322_FA14_46BC_A1E2_321AE086B23E:ValToHex.h:
 s:aca63948_8bf1_45ed_ae9b_a1d817a97434:ValueToTemplate.h:
 s:a4d77a02_cd40_4742_b3fb_ebb4bdbd5503:ValueToTemplatePolicy.h:
 s:3982483b_70a3_4b3a_a50a_4d948fb44655:VectorSimulator.h:
@@ -36,3 +39,7 @@ s:2797fe05_9123_4e96_95fc_48f4cd51828f:launchByAssociation.h:
 s:437ff403_6ea8_420b_a3a6_e038a1973821:max_extended.h:
 s:d4776503_9e94_44d6_a1e8_82effab40556:min_extended.h:
 s:981f9445_6d58_462f_8452_6937dfac9a52:osgFindNamedNode.h:
+s:DE8D6748_B808_4C8A_497E_F92350D11D41:w32/LastErrorToString.h:
+s:BEFD0CC7_1581_4C98_2E74_F5BFEC61C05B:w32/UniqueWinObj.h:
+s:C1332DA8_3583_4596_0ED7_A0E7AC039F50:w32/Win32Utilities.h:
+s:223FABF1_C10A_4DBD_D0A3_71CDC510929F:w32/WindowsHeader.h:
