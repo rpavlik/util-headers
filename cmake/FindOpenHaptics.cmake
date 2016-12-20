@@ -3,12 +3,16 @@
 # Cache Variables: (probably not for direct use in your scripts)
 #  HDAPI_INCLUDE_DIR
 #  HDAPI_LIBRARY
+#  HDAPI_LIBRARY_RELEASE
+#  HDAPI_LIBRARY_DEBUG
 #  HDAPI_HDU_INCLUDE_DIR
 #  HDAPI_HDU_LIBRARY
 #  HDAPI_HDU_LIBRARY_RELEASE
 #  HDAPI_HDU_LIBRARY_DEBUG
 #  HLAPI_INCLUDE_DIR
 #  HLAPI_LIBRARY
+#  HLAPI_LIBRARY_RELEASE
+#  HLAPI_LIBRARY_DEBUG
 #  HLAPI_HLU_INCLUDE_DIR
 #  HLAPI_HLU_LIBRARY
 #  HLAPI_HLU_LIBRARY_RELEASE
@@ -40,7 +44,7 @@
 #  CMake 2.6.3 (uses "unset")
 #
 # Original Author:
-# 2009-2010 Ryan Pavlik <rpavlik@iastate.edu> <abiryan@ryand.net>
+# 2009-2012 Ryan Pavlik <rpavlik@iastate.edu> <abiryan@ryand.net>
 # http://academic.cleardefinition.com
 # Iowa State University HCI Graduate Program/VRAC
 #
@@ -77,8 +81,20 @@ set(_libsearchdirs)
 set(OPENHAPTICS_ENVIRONMENT)
 set(OPENHAPTICS_RUNTIME_LIBRARY_DIRS)
 
+set(_dirs)
+if(NOT "$ENV{OH_SDK_BASE}" STREQUAL "")
+	list(APPEND _dirs "$ENV{OH_SDK_BASE}")
+elseif(NOT "$ENV{3DTOUCH_BASE}" STREQUAL "")
+	list(APPEND _dirs "$ENV{3DTOUCH_BASE}")
+endif()
 if(WIN32)
-	program_files_fallback_glob(_dirs "/Sensable/3DTouch*/")
+	program_files_fallback_glob(_pfdirs "/Sensable/3DTouch*/")
+	foreach(_OH_DEFAULT_LOCATION "C:/OpenHaptics/3.1" "C:/OpenHaptics/Academic/3.1")
+		if(EXISTS "${_OH_DEFAULT_LOCATION}")
+			list(APPEND _dirs "${_OH_DEFAULT_LOCATION}")
+		endif()
+	endforeach()
+	set(_dirs "${_dirs};${_pfdirs}")
 	if(MSVC60)
 		set(_vc "vc6")
 	elseif(MSVC70 OR MSVC71)
@@ -160,11 +176,25 @@ find_path(HDAPI_INCLUDE_DIR
 	HINTS
 	${_incsearchdirs})
 
-find_library(HDAPI_LIBRARY
+find_library(HDAPI_LIBRARY_RELEASE
 	NAMES
 	HD
+	PATH_SUFFIXES
+	ReleaseAcademicEdition
+	Release
 	HINTS
 	${_libsearchdirs})
+
+find_library(HDAPI_LIBRARY_DEBUG
+	NAMES
+	HD
+	PATH_SUFFIXES
+	DebugAcademicEdition
+	Debug
+	HINTS
+	${_libsearchdirs})
+
+select_library_configurations(HDAPI)
 
 ###
 # HDAPI: HDU
@@ -206,9 +236,9 @@ find_library(HDAPI_HDU_LIBRARY_DEBUG
 select_library_configurations(HDAPI_HDU)
 
 if(OPENHAPTICS_NESTED_TARGETS OR NOT HDAPI_HDU_LIBRARY)
-    if(HDAPI_HDU_SOURCE_DIR AND NOT EXISTS "${HDAPI_HDU_SOURCE_DIR}/hdu.cpp")
-        unset(HDAPI_HDU_SOURCE_DIR)
-    endif()
+	if(HDAPI_HDU_SOURCE_DIR AND NOT EXISTS "${HDAPI_HDU_SOURCE_DIR}/hdu.cpp")
+		unset(HDAPI_HDU_SOURCE_DIR)
+	endif()
 	find_path(HDAPI_HDU_SOURCE_DIR
 		NAMES
 		hdu.cpp
@@ -244,12 +274,25 @@ find_path(HLAPI_INCLUDE_DIR
 	HINTS
 	${_incsearchdirs})
 
-find_library(HLAPI_LIBRARY
+find_library(HLAPI_LIBRARY_RELEASE
 	NAMES
 	HL
+	PATH_SUFFIXES
+	ReleaseAcademicEdition
+	Release
 	HINTS
 	${_libsearchdirs})
 
+find_library(HLAPI_LIBRARY_DEBUG
+	NAMES
+	HL
+	PATH_SUFFIXES
+	DebugAcademicEdition
+	Debug
+	HINTS
+	${_libsearchdirs})
+
+select_library_configurations(HLAPI)
 
 ###
 # HLAPI: HLU
@@ -291,9 +334,9 @@ find_library(HLAPI_HLU_LIBRARY_DEBUG
 select_library_configurations(HLAPI_HLU)
 
 if(OPENHAPTICS_NESTED_TARGETS OR NOT HLAPI_HLU_LIBRARY)
-    if(HLAPI_HLU_SOURCE_DIR AND NOT EXISTS "${HLAPI_HLU_SOURCE_DIR}/hlu.cpp")
-        unset(HLAPI_HLU_SOURCE_DIR)
-    endif()
+	if(HLAPI_HLU_SOURCE_DIR AND NOT EXISTS "${HLAPI_HLU_SOURCE_DIR}/hlu.cpp")
+		unset(HLAPI_HLU_SOURCE_DIR)
+	endif()
 	find_path(HLAPI_HLU_SOURCE_DIR
 		NAMES
 		hlu.cpp
@@ -385,7 +428,7 @@ if(OPENHAPTICS_FOUND)
 	# Recurse into the nested targets subdirectory if needed
 	if(_nest_targets)
 		get_filename_component(_moddir "${CMAKE_CURRENT_LIST_FILE}" PATH)
-		add_subdirectory("${_moddir}/nested_targets/OpenHaptics")
+		add_subdirectory("${_moddir}/nested_targets/OpenHaptics" "OpenHapticsNestedTargets")
 	endif()
 
 	set(OPENHAPTICS_LIBRARIES
@@ -396,10 +439,12 @@ if(OPENHAPTICS_FOUND)
 	set(OPENHAPTICS_LIBRARY_DIRS)
 	foreach(_lib
 		${_deps_check}
-		HDAPI_LIBRARY
+		HDAPI_LIBRARY_RELEASE
+		HDAPI_LIBRARY_DEBUG
 		HDAPI_HDU_LIBRARY_RELEASE
 		HDAPI_HDU_LIBRARY_DEBUG
-		HLAPI_LIBRARY
+		HLAPI_LIBRARY_RELEASE
+		HLAPI_LIBRARY_DEBUG
 		HLAPI_HLU_LIBRARY_RELEASE
 		HLAPI_HLU_LIBRARY_DEBUG)
 		get_filename_component(_libdir ${${_lib}} PATH)
@@ -423,12 +468,14 @@ if(OPENHAPTICS_FOUND)
 endif()
 
 mark_as_advanced(HDAPI_INCLUDE_DIR
-	HDAPI_LIBRARY
+	HDAPI_LIBRARY_RELEASE
+	HDAPI_LIBRARY_DEBUG
 	HDAPI_HDU_INCLUDE_DIR
 	HDAPI_HDU_LIBRARY_RELEASE
 	HDAPI_HDU_LIBRARY_DEBUG
 	HLAPI_INCLUDE_DIR
-	HLAPI_LIBRARY
+	HLAPI_LIBRARY_RELEASE
+	HLAPI_LIBRARY_DEBUG
 	HLAPI_HLU_INCLUDE_DIR
 	HLAPI_HLU_LIBRARY_RELEASE
 	HLAPI_HLU_LIBRARY_DEBUG)
