@@ -1,7 +1,7 @@
 # CMake cross-platform build system
 # 2009-2016 Ryan Pavlik <ryan.pavlik@gmail.com>
 
-cmake_minimum_required(VERSION 2.6.2)
+cmake_minimum_required(VERSION 3.1.0)
 
 # Set package properties
 project(util-headers)

@@ -82,6 +82,18 @@ macro(remove_header_tests)
 	list(REMOVE_ITEM HEADERS ${ARGN})
 endmacro()
 
+macro(cxx11_header_tests)
+	if(MSVC AND MSVC_VERSION LESS 1700)
+		remove_header_tests(${ARGN})
+	else()
+		foreach(_header ${ARGN})
+			string(REPLACE ".h" "" _shortname "${_header}")
+			string(MAKE_C_IDENTIFIER "${_shortname}" _shortname)
+			set(CXX_STANDARD_${_shortname} 11)
+		endforeach()
+	endif()
+endmacro()
+
 if(NOT VPR_FOUND)
 	remove_header_tests(
 		BlockingInvokeFunctorVPR.h
@@ -92,14 +104,7 @@ if(NOT (Boost_THREAD_LIBRARY AND CMAKE_THREAD_LIBS_INIT))
 	remove_header_tests(RunLoopManagerBoost.h)
 endif()
 
-if(MSVC AND NOT MSVC_VERSION LESS 1700)
-	# MSVC 2012 and up can support this
-else()
-	# TODO enable C++11 support in compilers where you have to switch it on,
-	# and enable this header then.
-
-	remove_header_tests(RunLoopManagerStd.h)
-endif()
+cxx11_header_tests(RunLoopManagerStd.h)
 
 if(NOT OPENSCENEGRAPH_FOUND)
 	remove_header_tests(osgFindNamedNode.h)

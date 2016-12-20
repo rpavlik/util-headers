@@ -40,6 +40,7 @@ endif()
 
 foreach(HEADER ${HEADERS})
 	string(REPLACE ".h" "" SHORTNAME "${HEADER}")
+	string(MAKE_C_IDENTIFIER "${SHORTNAME}" SHORTNAME)
 	set(stem "test_headercompile_${SHORTNAME}")
 	configure_file(test_headercompile.cpp.in "${CMAKE_CURRENT_BINARY_DIR}/${stem}.cpp" @ONLY)
 
@@ -47,7 +48,9 @@ foreach(HEADER ${HEADERS})
 	if(LIBRARIES_${SHORTNAME})
 		target_link_libraries(${stem} ${LIBRARIES_${SHORTNAME}})
 	endif()
+	if(CXX_STANDARD_${SHORTNAME})
+		set_property(TARGET ${stem} CXX_STANDARD ${CXX_STANDARD_${SHORTNAME}})
+	endif()
 	add_test(${stem}_executes ${stem})
 	add_dependencies(headercompile ${stem})
 endforeach()
-
