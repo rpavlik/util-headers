@@ -17,25 +17,20 @@
 // Standard includes
 #include <vector>
 
-
 using namespace boost::unit_test;
 using namespace util;
 
 // be able to print int vectors
-namespace boost {
-	namespace test_tools {
-		template<>
-		void print_log_value<std::vector<int> >::operator()(std::ostream& os, const std::vector<int>& val) {
-			for (unsigned int i = 0; i < val.size(); ++i) {
-				os << val[i] << ", ";
-			}
-		}
+namespace std {
+static inline ostream &operator<<(ostream &os, const vector<int> &val) {
+	for (unsigned int i = 0; i < val.size(); ++i) {
+		os << val[i] << ", ";
 	}
+	return os;
 }
+} // namespace std
 
-BOOST_AUTO_TEST_CASE(DefaultConstructionPOD) {
-	WithHistory<int> a;
-}
+BOOST_AUTO_TEST_CASE(DefaultConstructionPOD) { WithHistory<int> a; }
 
 BOOST_AUTO_TEST_CASE(ValueConstructionPOD) {
 	WithHistory<int> a(5);
@@ -62,7 +57,6 @@ BOOST_AUTO_TEST_CASE(DualValueConstructionPOD) {
 	BOOST_CHECK_EQUAL(a.current(), 5);
 	BOOST_CHECK_EQUAL(a.previous(), 10);
 }
-
 
 BOOST_AUTO_TEST_CASE(CopyFromDefaultConstructionPOD) {
 	WithHistory<int> a;
