@@ -1,15 +1,13 @@
 # CMake cross-platform build system
-# 2009-2010 Ryan Pavlik <rpavlik@iastate.edu>
-# http://academic.cleardefinition.com/
-# Iowa State University HCI Graduate Program/VRAC
+# 2009-2016 Ryan Pavlik <ryan.pavlik@gmail.com>
 
 cmake_minimum_required(VERSION 2.6.2)
 
 # Set package properties
 project(util-headers)
 
-set(CPACK_PACKAGE_VENDOR "Iowa State University")
-set(CPACK_PACKAGE_CONTACT "Ryan Pavlik <abiryan@ryand.net>")
+set(CPACK_PACKAGE_VENDOR "Ryan Pavlik")
+set(CPACK_PACKAGE_CONTACT "Ryan Pavlik <ryan.pavlik@gmail.com>")
 set(CPACK_PACKAGE_VERSION_MAJOR "1")
 set(CPACK_PACKAGE_VERSION_MINOR "0")
 set(CPACK_PACKAGE_VERSION_PATCH "0")
@@ -39,6 +37,10 @@ endif()
 # Locally-developed modules dist'ed with this app - always have this first.
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(UseBackportedModules)
+
+# Separate module not included with the cmake-modules repo
+include(CMakeBoostHelper.cmake)
+
 include(CppcheckTargets)
 include(DoxygenTargets)
 include(EnableExtraCompilerWarnings)
