@@ -108,7 +108,7 @@ set(versioninfo "This header is maintained as a part of 'util-headers' - you can
 
     This GUID can help identify the project: d1dbc94e-e863-49cf-bc08-ab4d9f486613
 
-   This copy of the header is from the revision that Git calls
+    This copy of the header is from the revision that Git calls
     ${VERSION_DESCRIPTION}
 ")
 
@@ -129,9 +129,15 @@ endif()
 
 set(HEADERS_WITH_ISSUES)
 foreach(HEADER ${HEADERS} ${UNTESTED_HEADERS})
-	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/util/${HEADER}" "${CMAKE_CURRENT_BINARY_DIR}/${HEADER}" @ONLY)
+	set(SRC_FILE "${CMAKE_CURRENT_SOURCE_DIR}/util/${HEADER}")
+
+	# Compute the subdirectory in util, if applicable
+	get_filename_component(SRC_DIR "${SRC_FILE}" DIRECTORY)
+	file(RELATIVE_PATH REL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/util/" "${SRC_DIR}")
+
+	configure_file("${SRC_FILE}" "${CMAKE_CURRENT_BINARY_DIR}/${HEADER}" @ONLY)
 	install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${HEADER}"
-		DESTINATION util)
+		DESTINATION util/${REL_DIR})
 
 	file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/util/${HEADER}" filecontents)
 	if(NOT filecontents MATCHES "[@]versioninfo[@]")
