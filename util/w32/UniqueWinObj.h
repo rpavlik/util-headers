@@ -76,7 +76,7 @@ namespace w32 {
         /// UniqueWinObj InvalidValuePolicy implementation: where nullptr means
         /// invalid.
         struct NullptrValue : BaseSingleInvalidValuePolicy<NullptrValue> {
-            static nullptr_t get() { return nullptr; }
+            static std::nullptr_t get() { return nullptr; }
         };
 
         /// UniqueWinObj DeleterPolicy implementation: uses CloseHandle.
@@ -390,7 +390,7 @@ namespace w32 {
                              "conversion operator returning value_type"
                           << std::endl;
 #endif
-                return v_;
+                return Base::v_;
             }
         };
 
